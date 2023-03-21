@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+{% for item in questions %}
+
+<h5>{{item[0]}}</h5>
+<div>
+    <details>
+    <summary>Показать ответ</summary>
+    <p>{{item[1]}}</p>
+</details>
+</div>
+{% endfor %}
+{% endblock %}
