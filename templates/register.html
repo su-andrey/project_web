@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="container-md">
     <h1>Регистрация</h1>
     <form action="" method="post">
         {{ form.hidden_tag() }}
@@ -52,5 +53,5 @@
         <p>{{ form.submit(class="btn btn-primary", type="submit") }}</p>
 
         <div>{{ message }}</div>
-    </form>
+    </form></div>
 {% endblock %}

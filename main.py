@@ -86,7 +86,11 @@ def logout():
 @app.route('/me', methods=['GET', 'POST'])
 def load_my_page():
     if current_user.is_authenticated:
-        return render_template('my_page.html')
+        db_sess = db_session.create_session()
+        posts = []
+        for elem in db_sess.query(Posts).filter(Posts.author_id == current_user.id):
+            posts.append([elem.title, str(elem.created_date).split(' ')[0], elem.content])
+        return render_template('my_page.html', posts=posts)
     else:
         return redirect('/register')
 
@@ -113,6 +117,21 @@ def add_post():
         return render_template('add_post.html', title='Авторизация', form=form)
     else:
         return render_template('dont_hack.html')
+
+
+@app.route('/user/<username>', methods=['GET'])
+def find_user(username):
+    db_sess = db_session.create_session()
+    posts = []
+    name = db_sess.query(User).filter(User.name == username).first().id
+    for elem in db_sess.query(Posts).filter(Posts.author_id == name):
+        posts.append([elem.title, str(elem.created_date).split(' ')[0], elem.content])
+    try:
+        if name == current_user.id:
+            return render_template('my_page.html', posts=posts)
+    except AttributeError:
+        pass
+    return render_template('user_page.html', name=username, posts=posts)
 
 
 if __name__ == '__main__':

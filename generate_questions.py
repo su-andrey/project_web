@@ -1,5 +1,4 @@
 from requests import get
-import json
 
 
 def get_question(quantity=1):

@@ -1,9 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<h2 class="display-1">{{ current_user.name }}</h2>
-<a href="/addpost" class="btn btn-warning">
-            Новый пост!
-        </a>
+<h2 class="display-1">{{ name }}</h2>
 <div class="p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
 {% for post in posts %}
 
