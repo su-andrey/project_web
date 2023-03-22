@@ -8,9 +8,12 @@
         <title>{{ title }}</title>
     </head>
     <body>
+    {% if current_user.is_authenticated %}
+    <div align="center"><a href="/logout">{{ current_user.name }}</a></div>
+    {% else %}
     <div align="center"> <a href="/register">    Регистрация    </a>
         <a href="/login"> Войти </a></div>
-    <div align="right">{{ current_user.name }}</div>
+    {% endif %}
     {% block content %}{% endblock %}
     </body>
 </html>

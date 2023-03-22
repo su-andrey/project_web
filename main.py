@@ -1,19 +1,19 @@
 from flask import Flask, redirect
 from flask import render_template
-from flask_login import LoginManager, login_user, logout_user, login_required
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_wtf import FlaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
-from wtforms import EmailField, PasswordField, IntegerField, SubmitField, StringField, BooleanField
+from wtforms import EmailField, PasswordField, IntegerField, SubmitField, StringField, BooleanField, FieldList
 from wtforms.validators import DataRequired
-
+from data.posts import Posts
 from data import db_session
+from data.user import User
 from generate_questions import get_question
 
 app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
 db_session.global_init("db/blogs.db")
-from data.user import User
 
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
@@ -21,6 +21,7 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
+    return db_sess.query(User).get(user_id)
 
 
 @app.route('/')
@@ -81,10 +82,37 @@ def logout():
     return redirect("/")
 
 
-@app.route('/me', methods=['GET', 'POST'])
 @login_required
+@app.route('/me', methods=['GET', 'POST'])
 def load_my_page():
-    return render_template()
+    if current_user.is_authenticated:
+        return render_template('my_page.html')
+    else:
+        return redirect('/register')
+
+
+class AddpostForm(FlaskForm):
+    title = StringField('Название викторины', validators=[DataRequired()])
+    content = StringField('Содержание', validators=[DataRequired()])
+    submit = SubmitField('Опубликовать')
+
+
+@app.route('/addpost', methods=['GET', 'POST'])
+def add_post():
+    if current_user.is_authenticated:
+        form = AddpostForm()
+        if form.validate_on_submit():
+            db_sess = db_session.create_session()
+            post = Posts()
+            post.author_id = current_user.id
+            post.title = form.title.data
+            post.content = form.content.data
+            db_sess.add(post)
+            db_sess.commit()
+            return redirect("/me")
+        return render_template('add_post.html', title='Авторизация', form=form)
+    else:
+        return render_template('dont_hack.html')
 
 
 if __name__ == '__main__':

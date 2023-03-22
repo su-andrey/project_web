@@ -1,4 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-{{ cuurent_user.name }}
+{{ current_user.name }}
+<a href="/addpost" class="btn btn-warning">
+            Новый пост!
+        </a>
 {% endblock %}
