@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
+<h6>Случайный вопрос, который, вы, возможно, захотите использовать   :)
+    {{ question[0][0] }}</h6>
+  <h6>  И ответ на него: {{ question[0][1] }}</h6>
+<a href="/find" class="btn btn-warning">
+    Перейти на страницу поиска вопросов
+</a>
 <div class="container-md">
     <h1>Добавление поста</h1>
     <form action="" method="post">

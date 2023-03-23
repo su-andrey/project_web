@@ -3,12 +3,13 @@ from flask import render_template
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_wtf import FlaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
-from wtforms import EmailField, PasswordField, IntegerField, SubmitField, StringField, BooleanField, FieldList
+from wtforms import EmailField, PasswordField, IntegerField, SubmitField, StringField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired
-from data.posts import Posts
+
 from data import db_session
+from data.posts import Posts
 from data.user import User
-from generate_questions import get_question
+from generate_questions import get_question, get_question_with_params
 
 app = Flask(__name__)
 login_manager = LoginManager()
@@ -26,8 +27,10 @@ def load_user(user_id):
 
 @app.route('/')
 def main():
-    quest = get_question(10)
-    return render_template('main.html', questions=quest)
+    db_sess = db_session.create_session()
+    posts = db_sess.query(Posts).order_by(Posts.created_date.desc()).all()
+    posts = [[elem.title, elem.author_id, elem.content] for elem in posts]
+    return render_template('main.html', posts=posts)
 
 
 class RegisterForm(FlaskForm):
@@ -97,7 +100,8 @@ def load_my_page():
 
 class AddpostForm(FlaskForm):
     title = StringField('Название викторины', validators=[DataRequired()])
-    content = StringField('Содержание', validators=[DataRequired()])
+    content = TextAreaField('Содержание', validators=[DataRequired()])
+
     submit = SubmitField('Опубликовать')
 
 
@@ -114,7 +118,7 @@ def add_post():
             db_sess.add(post)
             db_sess.commit()
             return redirect("/me")
-        return render_template('add_post.html', title='Авторизация', form=form)
+        return render_template('add_post.html', title='Авторизация', question=get_question(1), form=form)
     else:
         return render_template('dont_hack.html')
 
@@ -132,6 +136,18 @@ def find_user(username):
     except AttributeError:
         pass
     return render_template('user_page.html', name=username, posts=posts)
+
+
+@app.route('/find', methods=['GET'])
+def load_simply_questions(quantity=10):
+    tasks = get_question(quantity)
+    return render_template("get_question.html", questions=tasks)
+
+
+@app.route('/find/<value>/<data>', methods=['GET'])
+def find(value, data):
+    tasks = get_question_with_params(20, value, data)
+    return render_template("get_question.html", questions=tasks)
 
 
 if __name__ == '__main__':

@@ -1,13 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-{% for item in questions %}
 
-<h5>{{item[0]}}</h5>
-<div>
-    <details>
-    <summary>Показать ответ</summary>
-    <p>{{item[1]}}</p>
-</details>
+{% for elem in posts %}
+<div class="p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
+<h5>{{elem[1]}}: {{ elem[0]  }}</h5>
+<p>{{elem[2]}}</p>
 </div>
 {% endfor %}
 {% endblock %}

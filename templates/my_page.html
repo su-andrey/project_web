@@ -2,13 +2,13 @@
 {% block content %}
 <h2 class="display-1">{{ current_user.name }}</h2>
 <a href="/addpost" class="btn btn-warning">
-            Новый пост!
-        </a>
-<div class="p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
-{% for post in posts %}
+    Новый пост!
+</a>
 
-<h5>{{post[0]}} Дата публикации: {{ post[1]  }}</h5>
-<p>{{post[2]}}</p>
+{% for post in posts %}
+<div class="p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
+    <h5>{{post[0]}} Дата публикации: {{ post[1] }}</h5>
+    <p>{{post[2]}}</p>
 </div>
 {% endfor %}
 {% endblock %}
