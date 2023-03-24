@@ -1,6 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
-
+<div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Выбор стоимости вопроса
+  </button>
+  <ul class="dropdown-menu dropdown-menu-dark">
+    <li><a class="dropdown-item active" href="/find/100">100</a></li>
+    <li><a class="dropdown-item" href="/find/200">200</a></li>
+      <li><a class="dropdown-item" href="/find/300">300</a></li>
+      <li><a class="dropdown-item" href="/find/400">400</a></li>
+      <li><a class="dropdown-item" href="/find/500">500</a></li>
+      <li><a class="dropdown-item" href="/find/600">600</a></li>
+      <li><a class="dropdown-item" href="/find/700">700</a></li>
+      <li><a class="dropdown-item" href="/find/800">800</a></li>
+      <li><a class="dropdown-item" href="/find/900">900</a></li>
+      <li><a class="dropdown-item" href="/find/1000">1000</a></li>
+    <li><hr class="dropdown-divider"></li>
+  </ul>
+</div>
 <ul class="list-group">
 {% for quest in questions %}
 <li class="list-group-item d-flex justify-content-between align-items-center">

@@ -1,14 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
+<div align="left"><img src='static/avatar/{{current_user.id}}.jpg' alt="У вас нет фото" width="150" height="171"/></div>
 <h2 class="display-1">{{ current_user.name }}</h2>
-<a href="/addpost" class="btn btn-warning">
+<div class="btn-group" role="group" aria-label="Basic outlined example">
+<a href="/addpost" class="btn btn-outline-primary">
     Новый пост!
+</a><a href="/upload" class="btn btn-outline-primary">
+    Изменить фото профиля!
 </a>
-
+</div>
 {% for post in posts %}
 <div class="p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
     <h5>{{post[0]}} Дата публикации: {{ post[1] }}</h5>
-    <p>{{post[2]}}</p>
+    <pre>{{post[2]}}</pre>
 </div>
+<h4></h4>
 {% endfor %}
 {% endblock %}

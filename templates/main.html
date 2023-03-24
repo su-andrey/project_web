@@ -3,8 +3,9 @@
 
 {% for elem in posts %}
 <div class="p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
-<h5>{{elem[1]}}: {{ elem[0]  }}</h5>
-<p>{{elem[2]}}</p>
+<h5><a href="/user/{{elem[-1]}}" class="btn btn-outline-primary">{{elem[1]}}: {{ elem[0]  }}</a></h5>
+<pre>{{elem[2]}}</pre>
 </div>
+<h4></h4>
 {% endfor %}
 {% endblock %}

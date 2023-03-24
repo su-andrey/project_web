@@ -9,9 +9,9 @@ def get_question(quantity=1):
         res.append([tex[i]['question'], tex[i]['answer']])
     return res
 
-def get_question_with_params(quantity, value, data):
+def get_question_with_params(quantity, value):
     url = 'http://jservice.io/api/random'
-    params = {'count': quantity, 'value': value, 'min_date': data}
+    params = {'count': quantity, 'value': value}
     tex, res = get(url, params=params).json(), []
     for i in range(quantity):
         res.append([tex[i]['question'], tex[i]['answer']])

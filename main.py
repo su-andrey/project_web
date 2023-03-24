@@ -1,4 +1,4 @@
-from flask import Flask, redirect
+from flask import Flask, redirect, request
 from flask import render_template
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_wtf import FlaskForm
@@ -15,7 +15,7 @@ app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
 db_session.global_init("db/blogs.db")
-
+MAX_CONTENT_LENGTH = 1024 * 1024 * 5
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 
@@ -28,8 +28,11 @@ def load_user(user_id):
 @app.route('/')
 def main():
     db_sess = db_session.create_session()
-    posts = db_sess.query(Posts).order_by(Posts.created_date.desc()).all()
-    posts = [[elem.title, elem.author_id, elem.content] for elem in posts]
+    tex = db_sess.query(Posts).order_by(Posts.created_date.desc()).all()
+    posts = []
+    for elem in tex:
+        tmp = db_sess.query(User).filter(User.id == elem.author_id).first().name
+        posts.append([elem.title, tmp, elem.content, elem.author_id])
     return render_template('main.html', posts=posts)
 
 
@@ -123,15 +126,15 @@ def add_post():
         return render_template('dont_hack.html')
 
 
-@app.route('/user/<username>', methods=['GET'])
-def find_user(username):
+@app.route('/user/<id>', methods=['GET'])
+def find_user(id):
     db_sess = db_session.create_session()
+    username = db_sess.query(User).filter(User.id == id).first().name
     posts = []
-    name = db_sess.query(User).filter(User.name == username).first().id
-    for elem in db_sess.query(Posts).filter(Posts.author_id == name):
+    for elem in db_sess.query(Posts).filter(Posts.author_id == id):
         posts.append([elem.title, str(elem.created_date).split(' ')[0], elem.content])
     try:
-        if name == current_user.id:
+        if id == current_user.id:
             return render_template('my_page.html', posts=posts)
     except AttributeError:
         pass
@@ -144,10 +147,19 @@ def load_simply_questions(quantity=10):
     return render_template("get_question.html", questions=tasks)
 
 
-@app.route('/find/<value>/<data>', methods=['GET'])
-def find(value, data):
-    tasks = get_question_with_params(20, value, data)
+@app.route('/find/<value>', methods=['GET'])
+def find(value):
+    tasks = get_question_with_params(20, value)
     return render_template("get_question.html", questions=tasks)
+
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload():
+    if request.method == 'POST':
+        file = request.files['file']
+        file.save(f'static/avatar/{current_user.id}.jpg')
+        return redirect('/me')
+    return render_template('upload.html')
 
 
 if __name__ == '__main__':
