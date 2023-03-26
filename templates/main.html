@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
+
 {% for elem in posts %}
 <div class="p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
 <h5><a href="/user/{{elem[-1]}}" class="btn btn-outline-primary">{{elem[1]}}: {{ elem[0]  }}</a></h5>

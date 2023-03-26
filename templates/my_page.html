@@ -3,15 +3,18 @@
 <div align="left"><img src='static/avatar/{{current_user.id}}.jpg' alt="У вас нет фото" width="150" height="171"/></div>
 <h2 class="display-1">{{ current_user.name }}</h2>
 <div class="btn-group" role="group" aria-label="Basic outlined example">
-<a href="/addpost" class="btn btn-outline-primary">
-    Новый пост!
-</a><a href="/upload" class="btn btn-outline-primary">
+    <a href="/addpost" class="btn btn-outline-primary">
+        Новый пост!
+    </a><a href="/upload" class="btn btn-outline-primary">
     Изменить фото профиля!
 </a>
 </div>
 {% for post in posts %}
 <div class="p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
-    <h5>{{post[0]}} Дата публикации: {{ post[1] }}</h5>
+
+    <h5>{{post[0]}} Дата публикации: {{ post[1] }}
+        <div align="right"><a href="/delete_post/{{post[3]}}">
+        <img src="static/delete1.png" alt="Удалить" width="50px" height="50px"/></a></div></h5>
     <pre>{{post[2]}}</pre>
 </div>
 <h4></h4>

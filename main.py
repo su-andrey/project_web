@@ -95,7 +95,7 @@ def load_my_page():
         db_sess = db_session.create_session()
         posts = []
         for elem in db_sess.query(Posts).filter(Posts.author_id == current_user.id):
-            posts.append([elem.title, str(elem.created_date).split(' ')[0], elem.content])
+            posts.append([elem.title, str(elem.created_date).split(' ')[0], elem.content, elem.id])
         return render_template('my_page.html', posts=posts)
     else:
         return redirect('/register')
@@ -129,16 +129,19 @@ def add_post():
 @app.route('/user/<id>', methods=['GET'])
 def find_user(id):
     db_sess = db_session.create_session()
-    username = db_sess.query(User).filter(User.id == id).first().name
-    posts = []
-    for elem in db_sess.query(Posts).filter(Posts.author_id == id):
-        posts.append([elem.title, str(elem.created_date).split(' ')[0], elem.content])
     try:
-        if id == current_user.id:
-            return render_template('my_page.html', posts=posts)
-    except AttributeError:
-        pass
-    return render_template('user_page.html', name=username, posts=posts)
+        username = db_sess.query(User).filter(User.id == id).first().name
+        posts = []
+        for elem in db_sess.query(Posts).filter(Posts.author_id == id):
+            posts.append([elem.title, str(elem.created_date).split(' ')[0], elem.content])
+        try:
+            if id == current_user.id:
+                return render_template('my_page.html', posts=posts)
+        except AttributeError:
+            pass
+        return render_template('user_page.html', name=username, posts=posts)
+    except Exception as e:
+        return "Something get wrong, please return to the previous page. Thanks"
 
 
 @app.route('/find', methods=['GET'])
@@ -160,6 +163,25 @@ def upload():
         file.save(f'static/avatar/{current_user.id}.jpg')
         return redirect('/me')
     return render_template('upload.html')
+
+
+@app.route('/delete_post/<post_id>', methods=['GET', 'POST'])
+def delete_post(post_id):
+    db_sess = db_session.create_session()
+    post = db_sess.query(Posts).get(post_id)
+    db_sess.delete(post)
+    db_sess.commit()
+    return redirect('/me')
+
+
+@app.route('/create_quiz', methods=['GET', 'POST'])
+def create_quiz():
+    res = []
+    for i in range(100, 1100, 100):
+        tex = get_question_with_params(10, i)
+        tex.append(i)
+        res.append(tex)
+    return render_template('create_quiz.html', posts=res)
 
 
 if __name__ == '__main__':
