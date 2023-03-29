@@ -9,8 +9,8 @@ class User(SqlAlchemyBase, flask_login.UserMixin, SerializerMixin):
 
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
-    surname = sqlalchemy.Column(sqlalchemy.String)
-    name = sqlalchemy.Column(sqlalchemy.String)
+    surname = sqlalchemy.Column(sqlalchemy.String, server_default='User')
+    name = sqlalchemy.Column(sqlalchemy.String, server_default='User')
     age = sqlalchemy.Column(sqlalchemy.Integer)
-    email = sqlalchemy.Column(sqlalchemy.String)
+    email = sqlalchemy.Column(sqlalchemy.String, unique=True)
     check_password = sqlalchemy.Column(sqlalchemy.String)

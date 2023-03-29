@@ -1,11 +1,38 @@
 {% extends "base.html" %}
 {% block content %}
-
-
+<!--<form class="d-flex" role="search">
+    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+    <a class="btn btn-outline-primary"> Поиск</a>
+</form>-->
+<div align="right">
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <table>
+        <tr>
+            <th></th>
+            <th></th>
+        </tr>
+    <p>
+    <tr><td>
+        {{ form.find_id.label }}<br>
+        {{ form.find_id(class="form-control", type="string") }}<br>
+        {% for error in form.find_id.errors %}
+    <div class="btn btn-outline-primary">
+        {{ error }}
+    </div>
+    {% endfor %}
+    </p>
+        </td><td>
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+        </td></tr>
+    </table>
+    <div>{{ message }}</div>
+</form>
+</div>
 {% for elem in posts %}
 <div class="p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
-<h5><a href="/user/{{elem[-1]}}" class="btn btn-outline-primary">{{elem[1]}}: {{ elem[0]  }}</a></h5>
-<pre>{{elem[2]}}</pre>
+    <h5><a href="/user/{{elem[-1]}}" class="btn btn-outline-primary">{{elem[1]}}: {{ elem[0] }}</a></h5>
+    <pre>{{elem[2]}}</pre>
 </div>
 <h4></h4>
 {% endfor %}

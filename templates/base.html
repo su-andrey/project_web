@@ -11,10 +11,7 @@
 <body>
 <nav class="navbar bg-body-tertiary">
   <div class="container-fluid">
-    <form class="d-flex" role="search">
-      <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-        <a href="/user/1" class="btn btn-outline-primary"> Поиск</a>
-    </form>
+
       {% if current_user.is_authenticated %}
 <div align="right">
     <a href="/create_quiz" class="btn btn-outline-primary"> Создание</a>
@@ -22,7 +19,6 @@
     <a href="/me" class="btn btn-light">Моя страница</a>
 </div>
 {% else %}
-
 <div align="center">
     <a href="/create_quiz" class="btn btn-outline-primary"> Создание</a>
     <a href="/register" class="btn btn-light"> Регистрация </a>

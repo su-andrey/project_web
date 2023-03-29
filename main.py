@@ -5,7 +5,8 @@ from flask_wtf import FlaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import EmailField, PasswordField, IntegerField, SubmitField, StringField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired
-
+import schedule
+import json
 from data import db_session
 from data.posts import Posts
 from data.user import User
@@ -19,21 +20,55 @@ MAX_CONTENT_LENGTH = 1024 * 1024 * 5
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 
+def update_info():
+    data = {}
+    print('i was here')
+    for i in range(1, 11):
+        data[i] = get_question_with_params(1)
+    with open('static/day.json', 'w') as outfile:
+        json.dump(data, outfile)
+
+
+schedule.every().day.at("18:37").do(update_info)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
 
 
-@app.route('/')
+class Search_Form(FlaskForm):
+    find_id = StringField('Search', validators=[DataRequired()])
+    submit = SubmitField('Поиск')
+
+
+def search(data):
+    db_sess = db_session.create_session()
+    if data.isdigit():
+        if int(data) == current_user.id:
+            return '/me'
+        if int(data) <= db_sess.query(User).order_by(User.id.desc()).first().id:
+            return f'/user/{data}'
+        if int(data) <= db_sess.query(Posts).order_by(Posts.id.desc()).first().id:
+            uid = db_sess.query(Posts).filter(Posts.id == data).first().author_id
+            tex = db_sess.query(User).filter(User.id == uid).first().id
+            return f'/user/{tex}'
+
+
+@app.route('/', methods=['GET', 'POST'])
 def main():
+    form = Search_Form()
     db_sess = db_session.create_session()
     tex = db_sess.query(Posts).order_by(Posts.created_date.desc()).all()
     posts = []
     for elem in tex:
         tmp = db_sess.query(User).filter(User.id == elem.author_id).first().name
         posts.append([elem.title, tmp, elem.content, elem.author_id])
-    return render_template('main.html', posts=posts)
+    if form.validate_on_submit():
+        a = search(form.find_id.data)
+        return redirect(a)
+    return render_template('main.html', posts=posts, form=form)
 
 
 class RegisterForm(FlaskForm):
@@ -48,8 +83,12 @@ class RegisterForm(FlaskForm):
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
+    db_sess = db_session.create_session()
     if form.validate_on_submit():
-        db_sess = db_session.create_session()
+        if form.age.data < 3:
+            return render_template('register.html', form=form, message='You are too young')
+        if db_sess.query(User).filter(User.email == form.email.data):
+            return render_template('register.html', form=form, message='This e-mail was already used')
         user = User()
         user.email = form.email.data
         user.age = form.age.data
@@ -139,7 +178,7 @@ def find_user(id):
                 return render_template('my_page.html', posts=posts)
         except AttributeError:
             pass
-        return render_template('user_page.html', name=username, posts=posts)
+        return render_template('user_page.html', name=username, posts=posts, id=id)
     except Exception as e:
         return "Something get wrong, please return to the previous page. Thanks"
 
