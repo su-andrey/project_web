@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block content %}
+{{ message }}
+<div class="container-md">
+    <h1>Регистрация</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.q_1.label }}<br>
+            {{ form.q_1(class="form-control", type="string") }}<br>
+            {% for error in form.q_1.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.q_2.label }}<br>
+            {{ form.q_2(class="form-control", type="string") }}<br>
+            {% for error in form.q_2.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.q_3.label }}<br>
+            {{ form.q_3(class="form-control", type="string") }}<br>
+            {% for error in form.q_3.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.q_4.label }}<br>
+            {{ form.q_4(class="form-control", type="string") }}<br>
+            {% for error in form.q_4.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.q_5.label }}<br>
+            {{ form.q_5(class="form-control", type="string") }}<br>
+            {% for error in form.q_5.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.q_6.label }}<br>
+            {{ form.q_6(class="form-control", type="string") }}<br>
+            {% for error in form.q_6.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.q_7.label }}<br>
+            {{ form.q_7(class="form-control", type="string") }}<br>
+            {% for error in form.q_7.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.q_8.label }}<br>
+            {{ form.q_8(class="form-control", type="string") }}<br>
+            {% for error in form.q_8.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.q_9.label }}<br>
+            {{ form.q_9(class="form-control", type="string") }}<br>
+            {% for error in form.q_9.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.q_10.label }}<br>
+            {{ form.q_10(class="form-control", type="string") }}<br>
+            {% for error in form.q_10.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit(class="btn btn-primary", type="submit") }}</p>
+        <div>{{ message }}</div>
+    </form></div>
+{% endblock %}

@@ -13,4 +13,5 @@ class User(SqlAlchemyBase, flask_login.UserMixin, SerializerMixin):
     name = sqlalchemy.Column(sqlalchemy.String, server_default='User')
     age = sqlalchemy.Column(sqlalchemy.Integer)
     email = sqlalchemy.Column(sqlalchemy.String, unique=True)
+    rating = sqlalchemy.Column(sqlalchemy.Integer)
     check_password = sqlalchemy.Column(sqlalchemy.String)
