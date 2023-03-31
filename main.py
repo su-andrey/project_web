@@ -1,7 +1,9 @@
 import json
+import os
+import time
 
 import schedule
-from flask import Flask, redirect, request
+from flask import Flask, redirect, request, send_file
 from flask import render_template
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_wtf import FlaskForm
@@ -14,17 +16,6 @@ from data.posts import Posts
 from data.user import User
 from generate_questions import get_question, get_question_with_params
 
-
-def update_info():
-    data = {}
-    for i in range(1, 11):
-        data[i] = get_question_with_params(1, i * 100)
-    with open('static/day.json', 'w') as outfile:
-        json.dump(data, outfile)
-
-
-schedule.every().day.at("00:00").do(update_info)
-schedule.run_pending()
 app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -220,14 +211,30 @@ def delete_post(post_id):
     return redirect('/me')
 
 
+class QuizForm(FlaskForm):
+    title = StringField('Название викторины', validators=[DataRequired()])
+    content = TextAreaField('Содержание', validators=[DataRequired()])
+    submit = SubmitField('Скачать')
+
+
 @app.route('/create_quiz', methods=['GET', 'POST'])
 def create_quiz():
     res = []
+    form = QuizForm()
     for i in range(100, 1100, 100):
         tex = get_question_with_params(10, i)
         tex.append(i)
         res.append(tex)
-    return render_template('create_quiz.html', posts=res)
+    if form.validate_on_submit():
+        if current_user.is_authenticated:
+            name = f'send{current_user.id}.txt'
+        else:
+            name = f'send{time.time()}.txt'
+        with open(name, 'w') as f:
+            f.write(form.title.data)
+            f.write(form.content.data)
+        return send_file(name, as_attachment=True)
+    return render_template('create_quiz.html', posts=res, form=form)
 
 
 class DailyForm(FlaskForm):
@@ -245,6 +252,7 @@ class DailyForm(FlaskForm):
     q_10 = StringField(f'{info["10"][0][0]}', validators=[DataRequired()])
     submit = SubmitField('Отправить на проверку')
 
+
 def check(num, ans):
     with open('static/day.json', 'r') as f:
         info = json.load(f)
@@ -253,7 +261,10 @@ def check(num, ans):
 
 @app.route('/daily', methods=['GET', 'POST'])
 def daily():
-    if current_user.is_authenticated():
+    with open('static/participants.txt', 'r') as f:
+        if str(current_user.id) in f.read():
+            return redirect('/')
+    if current_user.is_authenticated:
         form = DailyForm()
         res = 0
         if form.validate_on_submit():
@@ -284,14 +295,34 @@ def daily():
             else:
                 Usr.rating = res
             db_sess.commit()
+            with open('static/participants.txt', 'a') as f:
+                f.write(f'{current_user.id} ')
             return redirect('/')
         return render_template('daily.html', form=form)
     return render_template('dont_hack.html')
 
 
+def update_info():
+    data = {}
+    for i in range(1, 11):
+        data[i] = get_question_with_params(1, i * 100)
+    with open('static/day.json', 'w') as outfile:
+        json.dump(data, outfile)
+
+
+def clear():
+    directory = os.fsencode('.')
+    for file in os.listdir(directory):
+        filename = os.fsdecode(file)
+        if 'send' in filename:
+            os.remove(filename)
+        else:
+            continue
 
 
 if __name__ == '__main__':
     app.run(port=8080, host='127.0.0.1')
+schedule.every().day.at("22:11").do(update_info)
+schedule.every(1).minutes.do(clear)
 while True:
     schedule.run_pending()
