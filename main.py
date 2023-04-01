@@ -221,10 +221,6 @@ class QuizForm(FlaskForm):
 def create_quiz():
     res = []
     form = QuizForm()
-    for i in range(100, 1100, 100):
-        tex = get_question_with_params(10, i)
-        tex.append(i)
-        res.append(tex)
     if form.validate_on_submit():
         if current_user.is_authenticated:
             name = f'send{current_user.id}.txt'
@@ -235,7 +231,12 @@ def create_quiz():
             f.write('\n')
             f.write(form.content.data)
         return send_file(name, as_attachment=True)
+    for i in range(100, 1100, 100):
+        tex = get_question_with_params(10, i)
+        tex.append(i)
+        res.append(tex)
     return render_template('create_quiz.html', posts=res, form=form)
+
 
 
 class DailyForm(FlaskForm):
