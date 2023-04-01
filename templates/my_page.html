@@ -4,13 +4,13 @@
 <h2 class="display-1">{{ current_user.name }}</h2>
 <div class="btn-group" role="group" aria-label="Basic outlined example">
     <a href="/addpost" class="btn btn-outline-primary">
-        Новый пост!
+        New post!
     </a><a href="/upload" class="btn btn-outline-primary">
-    Изменить фото профиля!
+    New photo!
 </a>
 </div>
 <div><a href="/daily" class="btn btn-outline-primary">
-    Ежедневное соревнование на рейтинг
+    Daily competition!
 </a></div>
 {% for post in posts %}
 <div class="p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">

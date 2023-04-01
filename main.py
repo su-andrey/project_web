@@ -2,7 +2,7 @@ import json
 import os
 import time
 
-import schedule
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, redirect, request, send_file
 from flask import render_template
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -212,9 +212,9 @@ def delete_post(post_id):
 
 
 class QuizForm(FlaskForm):
-    title = StringField('Название викторины', validators=[DataRequired()])
-    content = TextAreaField('Содержание', validators=[DataRequired()])
-    submit = SubmitField('Скачать')
+    title = StringField('Title of quiz', validators=[DataRequired()])
+    content = TextAreaField('Content', validators=[DataRequired()])
+    submit = SubmitField('Download')
 
 
 @app.route('/create_quiz', methods=['GET', 'POST'])
@@ -232,6 +232,7 @@ def create_quiz():
             name = f'send{time.time()}.txt'
         with open(name, 'w') as f:
             f.write(form.title.data)
+            f.write('\n')
             f.write(form.content.data)
         return send_file(name, as_attachment=True)
     return render_template('create_quiz.html', posts=res, form=form)
@@ -261,6 +262,11 @@ def check(num, ans):
 
 @app.route('/daily', methods=['GET', 'POST'])
 def daily():
+    db_sess = db_session.create_session()
+    top = db_sess.query(User).order_by(User.rating.desc()).all()
+    infos = []
+    for i in range(3):
+        infos.append([top[i].id, top[i].name])
     with open('static/participants.txt', 'r') as f:
         if str(current_user.id) in f.read():
             return redirect('/')
@@ -288,7 +294,6 @@ def daily():
                 res += 900
             if check('10', form.q_10.data):
                 res += 1000
-            db_sess = db_session.create_session()
             Usr = db_sess.query(User).filter(User.id == current_user.id).first()
             if Usr.rating:
                 Usr.rating += res
@@ -298,11 +303,13 @@ def daily():
             with open('static/participants.txt', 'a') as f:
                 f.write(f'{current_user.id} ')
             return redirect('/')
-        return render_template('daily.html', form=form)
+        return render_template('daily.html', form=form, user=infos)
     return render_template('dont_hack.html')
 
 
 def update_info():
+    with open('static/participants.txt', 'w') as f:
+        f.write('')
     data = {}
     for i in range(1, 11):
         data[i] = get_question_with_params(1, i * 100)
@@ -320,9 +327,8 @@ def clear():
             continue
 
 
-if __name__ == '__main__':
-    app.run(port=8080, host='127.0.0.1')
-schedule.every().day.at("22:11").do(update_info)
-schedule.every(1).minutes.do(clear)
-while True:
-    schedule.run_pending()
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=clear, trigger="interval", minutes=1)
+scheduler.add_job(func=update_info, trigger="interval", hours=24)
+scheduler.start()
+app.run(port=8080, host='127.0.0.1')
