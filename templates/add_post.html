@@ -29,7 +29,10 @@
                 </div>
             {% endfor %}
         </p>
-        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+        <p>{{ form.submit(type="submit", class="btn btn-primary") }}
+        <a href="/upload" class="btn btn-outline-primary">
+        Just load a txt file!
+    </a></p>
 
         <div>{{ message }}</div>
     </form>

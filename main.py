@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 import time
@@ -22,6 +23,8 @@ login_manager.init_app(app)
 db_session.global_init("db/blogs.db")
 MAX_CONTENT_LENGTH = 1024 * 1024 * 5
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+
+user_qst = {}
 
 
 @login_manager.user_loader
@@ -54,8 +57,17 @@ def search(data):
             return '/'
 
 
+async def make_qst():
+    tasks = [asyncio.create_task(get_question_with_params(10, i)) for i in range(100, 1100, 100)]
+    await asyncio.gather(*tasks)
+    for i in range(len(tasks)):
+        tasks[i] = tasks[i].result()
+        tasks[i].append((i + 1) * 100)
+    user_qst[current_user.id] = tasks
+
+
 @app.route('/', methods=['GET', 'POST'])
-def main():
+async def main():
     form = Search_Form()
     db_sess = db_session.create_session()
     tex = db_sess.query(Posts).order_by(Posts.created_date.desc()).all()
@@ -66,6 +78,8 @@ def main():
     if form.validate_on_submit():
         a = search(form.find_id.data)
         return redirect(a)
+    if current_user.is_authenticated:
+        await make_qst()
     return render_template('main.html', posts=posts, form=form)
 
 
@@ -133,7 +147,7 @@ def load_my_page():
         posts = []
         for elem in db_sess.query(Posts).filter(Posts.author_id == current_user.id):
             posts.append([elem.title, str(elem.created_date).split(' ')[0], elem.content, elem.id])
-        return render_template('my_page.html', posts=posts)
+        return render_template('my_page.html', posts=posts[::-1])
     else:
         return redirect('/register')
 
@@ -197,8 +211,19 @@ def find(value):
 def upload():
     if request.method == 'POST':
         file = request.files['file']
-        file.save(f'static/avatar/{current_user.id}.jpg')
-        return redirect('/me')
+        if file.filename.split('.')[1] != 'txt':
+            file.save(f'static/avatar/{current_user.id}.jpg')
+            return redirect('/me')
+        else:
+            res = file.stream.read().decode().split('\n')
+            db_sess = db_session.create_session()
+            post = Posts()
+            post.author_id = current_user.id
+            post.title = res[0]
+            post.content = '\n'.join(res[1:])
+            db_sess.add(post)
+            db_sess.commit()
+            return redirect('/me')
     return render_template('upload.html')
 
 
@@ -218,8 +243,7 @@ class QuizForm(FlaskForm):
 
 
 @app.route('/create_quiz', methods=['GET', 'POST'])
-def create_quiz():
-    res = []
+async def create_quiz():
     form = QuizForm()
     if form.validate_on_submit():
         if current_user.is_authenticated:
@@ -231,12 +255,14 @@ def create_quiz():
             f.write('\n')
             f.write(form.content.data)
         return send_file(name, as_attachment=True)
-    for i in range(100, 1100, 100):
-        tex = get_question_with_params(10, i)
-        tex.append(i)
-        res.append(tex)
-    return render_template('create_quiz.html', posts=res, form=form)
-
+    if current_user.is_authenticated:
+        return render_template('create_quiz.html', posts=user_qst[current_user.id], form=form)
+    tasks = [asyncio.create_task(get_question_with_params(10, i)) for i in range(100, 1100, 100)]
+    await asyncio.gather(*tasks)
+    for i in range(len(tasks)):
+        tasks[i] = tasks[i].result()
+        tasks[i].append((i + 1) * 100)
+    return render_template('create_quiz.html', posts=tasks, form=form)
 
 
 class DailyForm(FlaskForm):
