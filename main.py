@@ -58,12 +58,16 @@ def search(data):
 
 
 async def make_qst():
-    tasks = [asyncio.create_task(get_question_with_params(10, i)) for i in range(100, 1100, 100)]
+    tasks = []
+    for i in range(100, 1100, 100):
+        task = (asyncio.create_task(get_question_with_params(10, i)))
+        tasks.append(task)
     await asyncio.gather(*tasks)
     for i in range(len(tasks)):
         tasks[i] = tasks[i].result()
         tasks[i].append((i + 1) * 100)
     user_qst[current_user.id] = tasks
+
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -79,7 +83,8 @@ async def main():
         a = search(form.find_id.data)
         return redirect(a)
     if current_user.is_authenticated:
-        await make_qst()
+        task = asyncio.create_task(make_qst())
+        await asyncio.gather(task)
     return render_template('main.html', posts=posts, form=form)
 
 
@@ -244,6 +249,7 @@ class QuizForm(FlaskForm):
 
 @app.route('/create_quiz', methods=['GET', 'POST'])
 async def create_quiz():
+    await make_qst()
     form = QuizForm()
     if form.validate_on_submit():
         if current_user.is_authenticated:

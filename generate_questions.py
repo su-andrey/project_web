@@ -1,7 +1,7 @@
 from requests import get
 import asyncio
 
-async def get_question(quantity=1):
+def get_question(quantity=1):
     url = 'http://jservice.io/api/random'
     params = {'count': quantity}
     tex, res = get(url, params=params).json(), []
