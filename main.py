@@ -2,7 +2,7 @@ import asyncio
 import json
 import os
 import time
-
+import threading
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, redirect, request, send_file
 from flask import render_template
@@ -56,17 +56,12 @@ def search(data):
         except Exception as e:
             return '/'
 
-
-async def make_qst():
+def make_qst(uid):
     tasks = []
     for i in range(100, 1100, 100):
-        task = (asyncio.create_task(get_question_with_params(10, i)))
-        tasks.append(task)
-    await asyncio.gather(*tasks)
-    for i in range(len(tasks)):
-        tasks[i] = tasks[i].result()
-        tasks[i].append((i + 1) * 100)
-    user_qst[current_user.id] = tasks
+        tasks.append(get_question_with_params(10, i))
+        tasks[-1].append(i)
+    user_qst[int(uid)] = tasks
 
 
 
@@ -83,8 +78,8 @@ async def main():
         a = search(form.find_id.data)
         return redirect(a)
     if current_user.is_authenticated:
-        task = asyncio.create_task(make_qst())
-        await asyncio.gather(task)
+        t1 = threading.Thread(target=make_qst, args=(str(current_user.id)))
+        t1.start()
     return render_template('main.html', posts=posts, form=form)
 
 
@@ -216,11 +211,14 @@ def find(value):
 def upload():
     if request.method == 'POST':
         file = request.files['file']
-        if file.filename.split('.')[1] != 'txt':
+        if file.filename.split('.')[-1] != 'txt':
             file.save(f'static/avatar/{current_user.id}.jpg')
             return redirect('/me')
         else:
-            res = file.stream.read().decode().split('\n')
+            try:
+                res = file.stream.read().decode('utf-8').split('\n')
+            except UnicodeDecodeError:
+                return render_template('upload.html', info="Sorry, but i cun't read this file :(")
             db_sess = db_session.create_session()
             post = Posts()
             post.author_id = current_user.id
@@ -248,8 +246,7 @@ class QuizForm(FlaskForm):
 
 
 @app.route('/create_quiz', methods=['GET', 'POST'])
-async def create_quiz():
-    await make_qst()
+def create_quiz():
     form = QuizForm()
     if form.validate_on_submit():
         if current_user.is_authenticated:
@@ -261,14 +258,18 @@ async def create_quiz():
             f.write('\n')
             f.write(form.content.data)
         return send_file(name, as_attachment=True)
-    if current_user.is_authenticated:
-        return render_template('create_quiz.html', posts=user_qst[current_user.id], form=form)
-    tasks = [asyncio.create_task(get_question_with_params(10, i)) for i in range(100, 1100, 100)]
-    await asyncio.gather(*tasks)
-    for i in range(len(tasks)):
-        tasks[i] = tasks[i].result()
-        tasks[i].append((i + 1) * 100)
-    return render_template('create_quiz.html', posts=tasks, form=form)
+    if current_user.is_authenticated and current_user.id in user_qst.keys() and user_qst[current_user.id] != '':
+        res, user_qst[current_user.id] = user_qst[current_user.id], ''
+        t1 = threading.Thread(target=make_qst, args=(str(current_user.id)))
+        t1.start()
+        return render_template('create_quiz.html', posts=res , form=form)
+    else:
+        res = []
+        for i in range(100, 1100, 100):
+            tex = get_question_with_params(10, i)
+            tex.append(i)
+            res.append(tex)
+    return render_template('create_quiz.html', posts=res, form=form)
 
 
 class DailyForm(FlaskForm):

@@ -9,7 +9,7 @@ def get_question(quantity=1):
         res.append([tex[i]['question'], tex[i]['answer']])
     return res
 
-async def get_question_with_params(quantity, value):
+def get_question_with_params(quantity, value):
     url = 'http://jservice.io/api/random'
     params = {'count': quantity, 'value': value}
     tex, res = get(url, params=params).json(), []
