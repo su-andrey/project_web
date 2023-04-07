@@ -1,13 +1,14 @@
-import asyncio
 import json
 import os
-import time
 import threading
+import time
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, redirect, request, send_file
 from flask import render_template
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_wtf import FlaskForm
+from werkzeug import exceptions
 from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import EmailField, PasswordField, IntegerField, SubmitField, StringField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired
@@ -25,6 +26,26 @@ MAX_CONTENT_LENGTH = 1024 * 1024 * 5
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 user_qst = {}
+
+
+@app.errorhandler(exceptions.BadRequest)
+def handle_404_request(e):
+    return render_template('err.html', tex=404)
+
+
+@app.errorhandler(exceptions.BadRequest)
+def handle_401_request(e):
+    return render_template('err.html', tex=401)
+
+
+@app.errorhandler(exceptions.BadRequest)
+def handle_500_request(e):
+    return render_template('err.html', tex=500)
+
+
+app.register_error_handler(404, handle_404_request)
+app.register_error_handler(401, handle_401_request)
+app.register_error_handler(500, handle_500_request)
 
 
 @login_manager.user_loader
@@ -54,7 +75,16 @@ def search(data):
             tex = db_sess.query(User).where(User.name.like(f'%{data.lower()}%')).first().id
             return f'/user/{tex}'
         except Exception as e:
-            return '/'
+            try:
+                tex = db_sess.query(Posts).where(Posts.title.like(f"%{data}%")).first().author_id
+                return f'/user/{tex}'
+            except Exception as e:
+                try:
+                    tex = db_sess.query(Posts).where(Posts.content.like(f'%{data.lower()}%')).first().author_id
+                    return f'/user/{tex}'
+                except Exception as e2:
+                    return '/'
+
 
 def make_qst(uid):
     tasks = []
@@ -62,7 +92,6 @@ def make_qst(uid):
         tasks.append(get_question_with_params(10, i))
         tasks[-1].append(i)
     user_qst[int(uid)] = tasks
-
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -76,6 +105,8 @@ async def main():
         posts.append([elem.title, tmp, elem.content, elem.author_id])
     if form.validate_on_submit():
         a = search(form.find_id.data)
+        if 'user' in a and a.split('/')[-1] == str(current_user.id):
+            return redirect('/me')
         return redirect(a)
     if current_user.is_authenticated:
         t1 = threading.Thread(target=make_qst, args=(str(current_user.id)))
@@ -262,7 +293,7 @@ def create_quiz():
         res, user_qst[current_user.id] = user_qst[current_user.id], ''
         t1 = threading.Thread(target=make_qst, args=(str(current_user.id)))
         t1.start()
-        return render_template('create_quiz.html', posts=res , form=form)
+        return render_template('create_quiz.html', posts=res, form=form)
     else:
         res = []
         for i in range(100, 1100, 100):
@@ -295,6 +326,7 @@ def check(num, ans):
 
 
 @app.route('/daily', methods=['GET', 'POST'])
+@login_required
 def daily():
     db_sess = db_session.create_session()
     top = db_sess.query(User).order_by(User.rating.desc()).all()
@@ -303,7 +335,7 @@ def daily():
         infos.append([top[i].id, top[i].name])
     with open('static/participants.txt', 'r') as f:
         if str(current_user.id) in f.read():
-            return redirect('/')
+            return redirect('/me')
     if current_user.is_authenticated:
         form = DailyForm()
         res = 0
