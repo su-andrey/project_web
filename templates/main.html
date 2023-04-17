@@ -25,6 +25,24 @@
     <div>{{ message }}</div>
 </form>
 </div>
+<table align="right">
+  <tr>
+    <td>
+</td>
+      <td><td align="right"><h2>Leaderboard</h2>
+      {{if current_user}}
+      <a href="/daily" class="btn btn-outline-primary">Поучастовать</a>
+    {% for leader in leaders %}
+    <h5><a href="/user/{{leader[-1]}}" class="btn btn-outline-primary">{{leader[0]}} {{ leader[1] }}</a></h5>
+    <img src='static/avatar/{{leader[-1]}}.jpg' alt="No photo" width="87" height="100"/>
+    <h5>{{ leader[2] }}</h5>
+          {% endfor %}</div></td>
+
+  </tr>
+
+</table>
+
+
 {% for elem in posts %}
 <div class="p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
     <h5><a href="/user/{{elem[-1]}}" class="btn btn-outline-primary">{{elem[1]}}: {{ elem[0] }}</a></h5>
@@ -32,4 +50,5 @@
 </div>
 <h4></h4>
 {% endfor %}
+</div>
 {% endblock %}

@@ -99,19 +99,27 @@ async def main():
     form = Search_Form()
     db_sess = db_session.create_session()
     tex = db_sess.query(Posts).order_by(Posts.created_date.desc()).all()
+    tmp = db_sess.query(User).order_by(User.rating.desc()).all()
+    leaders = []
+    for i in range(3):
+        leaders.append([tmp[i].name, tmp[i].surname, tmp[i].rating, tmp[i].id])
     posts = []
     for elem in tex:
         tmp = db_sess.query(User).filter(User.id == elem.author_id).first().name
         posts.append([elem.title, tmp, elem.content, elem.author_id])
     if form.validate_on_submit():
         a = search(form.find_id.data)
-        if 'user' in a and a.split('/')[-1] == str(current_user.id):
-            return redirect('/me')
-        return redirect(a)
+        try:
+            if current_user.is_authenticated:
+                if 'user' in a and a.split('/')[-1] == str(current_user.id):
+                    return redirect('/me')
+            return redirect(a)
+        except AttributeError:
+            return redirect('/')
     if current_user.is_authenticated:
         t1 = threading.Thread(target=make_qst, args=(str(current_user.id)))
         t1.start()
-    return render_template('main.html', posts=posts, form=form)
+    return render_template('main.html', posts=posts, form=form, leaders=leaders)
 
 
 class RegisterForm(FlaskForm):

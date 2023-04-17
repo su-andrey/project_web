@@ -1,5 +1,4 @@
 from requests import get
-import asyncio
 
 def get_question(quantity=1):
     url = 'http://jservice.io/api/random'
