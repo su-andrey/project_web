@@ -11,18 +11,17 @@
 <body>
 <nav class="navbar bg-body-tertiary">
   <div class="container-fluid">
-
       {% if current_user.is_authenticated %}
 <div align="right">
-    <a href="/create_quiz" class="btn btn-outline-primary"> Создание</a>
-    <a href="/logout" class="btn btn-light">Выйти со страницы {{ current_user.name }}</a>
-    <a href="/me" class="btn btn-light">Моя страница</a>
+    <a href="/create_quiz" class="btn btn-outline-primary"> Create quiz</a>
+    <a href="/logout" class="btn btn-light">Log out from {{ current_user.name }}</a>
+    <a href="/me" class="btn btn-light">My page</a>
 </div>
 {% else %}
 <div align="center">
-    <a href="/create_quiz" class="btn btn-outline-primary"> Создание</a>
-    <a href="/register" class="btn btn-light"> Регистрация </a>
-    <a href="/login" class="btn btn-light"> Войти </a></div>
+    <a href="/create_quiz" class="btn btn-outline-primary"> Create quiz</a>
+    <a href="/register" class="btn btn-light"> Sign up </a>
+    <a href="/login" class="btn btn-light"> Sign in </a></div>
 {% endif %}
     </div>
 </nav>
