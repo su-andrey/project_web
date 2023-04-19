@@ -1,5 +1,6 @@
 from requests import get
 
+
 def get_question(quantity=1):
     url = 'http://jservice.io/api/random'
     params = {'count': quantity}
@@ -8,6 +9,7 @@ def get_question(quantity=1):
         res.append([tex[i]['question'], tex[i]['answer']])
     return res
 
+
 def get_question_with_params(quantity, value):
     url = 'http://jservice.io/api/random'
     params = {'count': quantity, 'value': value}
@@ -15,6 +17,3 @@ def get_question_with_params(quantity, value):
     for i in range(quantity):
         res.append([tex[i]['question'], tex[i]['answer']])
     return res
-
-
-

@@ -2,7 +2,7 @@ import json
 import os
 import threading
 import time
-
+from difflib import SequenceMatcher
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, redirect, request, send_file
 from flask import render_template
@@ -30,17 +30,17 @@ user_qst = {}
 
 @app.errorhandler(exceptions.BadRequest)
 def handle_404_request(e):
-    return render_template('err.html', tex=404)
+    return render_template('err.html', err=404)
 
 
 @app.errorhandler(exceptions.BadRequest)
 def handle_401_request(e):
-    return render_template('err.html', tex=401)
+    return render_template('err.html', err=401)
 
 
 @app.errorhandler(exceptions.BadRequest)
 def handle_500_request(e):
-    return render_template('err.html', tex=500)
+    return render_template('err.html', err=500)
 
 
 app.register_error_handler(404, handle_404_request)
@@ -330,7 +330,12 @@ class DailyForm(FlaskForm):
 def check(num, ans):
     with open('static/day.json', 'r') as f:
         info = json.load(f)
-        return info[num][0][1].lower().strip() == ans.lower().strip()
+        correct = info[num][0][1].lower().strip()
+        similar = SequenceMatcher(None, correct, ans.lower().strip()).ratio()
+        tex = 1 - (0.0625 * len(correct))
+        if tex < 0.65:
+            tex = 0.65
+        return similar > 1 - tex
 
 
 @app.route('/daily', methods=['GET', 'POST'])
