@@ -3,12 +3,28 @@
 
 <body>
 {{ info }}
-<div class="center">
-    <h1> Выберите файл и подвердите свой выбор.</h1>
+<div class="container-md">
     <form method="POST" action="/upload" enctype="multipart/form-data">
-        <input class="ok" type="file" name="file">
-        <button class="btn btn-success">Submit</button>
+        <!--        <div class="input-file-row">-->
+        <!--        <label class="input-file">-->
+        <!--        <input class="ok" type="file" name="file" multiple accept="image/*">-->
+        <!--        <button class="btn btn-success">Submit</button>-->
+        <!--            </label>-->
+        <!--        <div class="input-file-list"></div>-->
+        <!--            </div>-->
+        <!--        <div class="input-group mb-3">-->
+        <!--</div>-->
+        <input type="file" name="file" multiple accept="image/*" class="form-control" id="inputGroupFile02"
+               placeholder="Click here for upload">
+        <h1></h1>
+        <div align="center">
+            <button class="btn btn-primary" style="width:300px">Submit</button>
+        </div>
     </form>
+    <div class="container-sm" align="center">
+        <h3>Your current photo</h3>
+        <img src='static/avatar/{{current_user.id}}.jpg' class="img-thumbnail" alt="No photo right now"/>
+    </div>
 </div>
 
 </body>

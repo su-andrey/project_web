@@ -10,14 +10,14 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from flask_wtf import FlaskForm
 from werkzeug import exceptions
 from werkzeug.security import generate_password_hash, check_password_hash
-from wtforms import EmailField, PasswordField, IntegerField, SubmitField, StringField, BooleanField, TextAreaField
+from wtforms import EmailField, PasswordField, IntegerField, SubmitField, StringField, BooleanField, TextAreaField, RadioField
 from wtforms.validators import DataRequired
 
 from data import db_session
 from data.posts import Posts
 from data.user import User
 from generate_questions import get_question, get_question_with_params
-
+info_about_qst = {}
 app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -234,16 +234,67 @@ def find_user(id):
         return "Something get wrong, please return to the previous page. Thanks"
 
 
-@app.route('/find', methods=['GET'])
+class FindForm(FlaskForm):
+    title = StringField('Title of quiz', validators=[DataRequired()])
+    content = TextAreaField('Content', validators=[DataRequired()])
+    radio = RadioField('Do you want to post this quiz?', choices=[('I wanna download this quiz'), ('I wanna post this quiz')])
+    submit = SubmitField('Finish')
+
+@app.route('/find', methods=['GET', 'POST'])
 def load_simply_questions(quantity=10):
+    form = FindForm()
+    if form.validate_on_submit():
+        if 'download' in form.radio.data:
+            if current_user.is_authenticated:
+                name = f'send{current_user.id}.txt'
+            else:
+                name = f'send{time.time()}.txt'
+            with open(name, 'w') as f:
+                f.write(form.title.data)
+                f.write('\n')
+                f.write(form.content.data)
+            return send_file(name, as_attachment=True)
+        else:
+            db_sess = db_session.create_session()
+            post = Posts()
+            post.author_id = current_user.id
+            post.title = form.title.data
+            post.content = form.content.data
+            db_sess.add(post)
+            db_sess.commit()
+            return redirect('/me')
     tasks = get_question(quantity)
-    return render_template("get_question.html", questions=tasks)
+    for elem in tasks:
+        if '<i>' in elem[1]:
+            elem[1] = elem[1][3:-4]
+    return render_template("get_question.html", questions=tasks, form=form)
 
 
-@app.route('/find/<value>', methods=['GET'])
+@app.route('/find/<value>', methods=['GET', 'POST'])
 def find(value):
+    form = FindForm()
+    if form.validate_on_submit():
+        if 'download' in form.radio.data:
+            if current_user.is_authenticated:
+                name = f'send{current_user.id}.txt'
+            else:
+                name = f'send{time.time()}.txt'
+            with open(name, 'w') as f:
+                f.write(form.title.data)
+                f.write('\n')
+                f.write(form.content.data)
+            return send_file(name, as_attachment=True)
+        else:
+            db_sess = db_session.create_session()
+            post = Posts()
+            post.author_id = current_user.id
+            post.title = form.title.data
+            post.content = form.content.data
+            db_sess.add(post)
+            db_sess.commit()
+            return redirect('/me')
     tasks = get_question_with_params(20, value)
-    return render_template("get_question.html", questions=tasks)
+    return render_template("get_question.html", questions=tasks, form=form)
 
 
 @app.route('/upload', methods=['GET', 'POST'])

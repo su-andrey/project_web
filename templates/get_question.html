@@ -2,8 +2,7 @@
 {% block content %}
 <div class="dropdown">
   <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Выбор стоимости вопроса
-  </button>
+Choose the value  </button>
   <ul class="dropdown-menu dropdown-menu-dark">
     <li><a class="dropdown-item active" href="/find/100">100</a></li>
     <li><a class="dropdown-item" href="/find/200">200</a></li>
@@ -26,4 +25,33 @@
   </li>
 {% endfor %}
 </ul>
+<form action="" method="post">
+        {{ form.hidden_tag() }}
+    <p>
+            {{ form.title.label }}<br>
+            {{ form.title(class="form-control", type="string") }}<br>
+            {% for error in form.title.errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endfor %}
+        </p>
+        <p>
+            {{ form.content.label }}<br>
+            {{ form.content(class="form-control", type="string") }}<br>
+            {% for error in form.content.errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endfor %}
+    {% for subfield in form.radio %}
+    <tr>
+        <td>{{ subfield }}</td>
+        <td>{{ subfield.label }}</td>
+    </tr>
+{% endfor %}
+        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+        <div>{{ message }}</div>
+    </form>
+
 {% endblock %}

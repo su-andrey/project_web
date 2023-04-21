@@ -16,7 +16,7 @@
         {{ form.hidden_tag() }}
         <p>
             {{ form.title.label }}<br>
-            {{ form.title(class="form-control", type="string") }}<br>
+            {{ form.title(class="form-control", type="string") }}<br>   
             {% for error in form.title.errors %}
         <div class="alert alert-danger" role="alert">
             {{ error }}

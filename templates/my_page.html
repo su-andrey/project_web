@@ -39,13 +39,12 @@
 </a></div>
 {% for post in posts %}
 <div class="p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
-
     <h5>{{post[0]}} Post date: {{ post[1] }}
         <div align="right"><a href="/delete_post/{{post[3]}}">
         <img src="static/delete1.png"  alt="Удалить" width="50px" height="50px"/></a></div></h5>
     <pre>{{post[2]}}</pre>
-{% endfor %}
 </div>
+{% endfor %}
 <h4></h4>
 </body>
 </html>
