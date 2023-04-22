@@ -28,15 +28,10 @@
 <img src='static/avatar/{{current_user.id}}.jpg' class="img-thumbnail" alt="No photo" width="306" height="350"/>
 <h2 class="display-1">{{ current_user.name }}</h2>
 <div class="btn-group" role="group" aria-label="Basic outlined example">
-    <a href="/addpost" class="btn btn-outline-primary">
-        New post!
-    </a><a href="/upload" class="btn btn-outline-primary">
-    New photo!
-</a>
+    <pre> <a href="/addpost" class="btn btn-outline-primary">New post!</a> <a href="/upload" class="btn btn-outline-primary">New photo!</a></pre>
 </div>
-<div><a href="/daily" class="btn btn-outline-primary">
-    Daily competition!
-</a></div>
+<div><pre>   <a href="/daily" class="btn btn-outline-primary">Daily competition!
+</a></pre></div>
 {% for post in posts %}
 <div class="p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3">
     <h5>{{post[0]}} Post date: {{ post[1] }}

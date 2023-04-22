@@ -375,7 +375,7 @@ class DailyForm(FlaskForm):
     q_8 = StringField(f'{info["8"][0][0]}', validators=[DataRequired()])
     q_9 = StringField(f'{info["9"][0][0]}', validators=[DataRequired()])
     q_10 = StringField(f'{info["10"][0][0]}', validators=[DataRequired()])
-    submit = SubmitField('Отправить на проверку')
+    submit = SubmitField('Send for check')
 
 
 def check(num, ans):

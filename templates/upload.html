@@ -5,25 +5,19 @@
 {{ info }}
 <div class="container-md">
     <form method="POST" action="/upload" enctype="multipart/form-data">
-        <!--        <div class="input-file-row">-->
-        <!--        <label class="input-file">-->
-        <!--        <input class="ok" type="file" name="file" multiple accept="image/*">-->
-        <!--        <button class="btn btn-success">Submit</button>-->
-        <!--            </label>-->
-        <!--        <div class="input-file-list"></div>-->
-        <!--            </div>-->
-        <!--        <div class="input-group mb-3">-->
-        <!--</div>-->
-        <input type="file" name="file" multiple accept="image/*" class="form-control" id="inputGroupFile02"
+        <input type="file" name="file" class="form-control" id="inputGroupFile02"
                placeholder="Click here for upload">
         <h1></h1>
         <div align="center">
             <button class="btn btn-primary" style="width:300px">Submit</button>
         </div>
     </form>
+    <h4><pre>
+    </pre></h4>
     <div class="container-sm" align="center">
-        <h3>Your current photo</h3>
-        <img src='static/avatar/{{current_user.id}}.jpg' class="img-thumbnail" alt="No photo right now"/>
+        <h4><em>An appeal to the reason of the people has never been known to fail in the long run.</em></h4>
+        <h6><pre></pre></h6>
+        <h4 align="right"><em><pre>- Lowell          </pre></em></h4>
     </div>
 </div>
 
